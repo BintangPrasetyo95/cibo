@@ -35,34 +35,39 @@ class FilmControllerTest extends TestCase
         );
     }
 
-    public function test_halaman_tambah_film_tetap_blade_pada_pertemuan_5(): void
+    public function test_halaman_create_film_disajikan_lewat_inertia_react(): void
     {
         $response = $this->get(route('film.create'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('film.create');
-        $response->assertSee('Tambah Film Baru');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('film/create')
+            ->has('judul')
+        );
     }
 
-    public function test_halaman_edit_film_tetap_blade_pada_pertemuan_5(): void
+    public function test_halaman_edit_film_disajikan_lewat_inertia_react(): void
     {
         $film = Film::first();
 
         $response = $this->get(route('film.edit', $film));
 
         $response->assertStatus(200);
-        $response->assertViewIs('film.edit');
-        $response->assertSee('Ubah Film: ' . $film->judul);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('film/edit')
+            ->where('film.id', $film->id)
+            ->has('judul')
+        );
     }
 
     public function test_store_film_berhasil_menyimpan_data_dan_redirect_ke_index(): void
     {
         $payload = [
-            'judul' => 'Film Pengujian Inertia',
+            'judul' => 'Film Pengujian P2 React',
             'genre' => 'Animasi',
-            'durasi_menit' => 90,
+            'durasi_menit' => 95,
             'usia_rating' => 'SU',
-            'sinopsis' => 'Sinopsis pengujian integrasi Inertia dan Form Request.',
+            'sinopsis' => 'Sinopsis pengujian modul P2 utuh di React.',
             'status_tayang' => 'segera',
         ];
 
@@ -72,14 +77,14 @@ class FilmControllerTest extends TestCase
         $response->assertSessionHas('sukses', 'Film baru berhasil ditambahkan.');
 
         $this->assertDatabaseHas('films', [
-            'judul' => 'Film Pengujian Inertia',
+            'judul' => 'Film Pengujian P2 React',
         ]);
     }
 
     public function test_update_film_berhasil_menyimpan_perubahan_dan_redirect(): void
     {
         $film = Film::create([
-            'judul' => 'Judul Sebelum Update Inertia',
+            'judul' => 'Judul Sebelum Update P2',
             'genre' => 'Petualangan',
             'durasi_menit' => 105,
             'usia_rating' => '13+',
@@ -88,11 +93,11 @@ class FilmControllerTest extends TestCase
         ]);
 
         $response = $this->put(route('film.update', $film), [
-            'judul' => 'Judul Setelah Update Inertia Sukses',
+            'judul' => 'Judul Setelah Update P2 Sukses',
             'genre' => 'Petualangan',
             'durasi_menit' => 110,
             'usia_rating' => '13+',
-            'sinopsis' => 'Sinopsis baru.',
+            'sinopsis' => 'Sinopsis baru yang valid.',
             'status_tayang' => 'tayang',
         ]);
 
@@ -101,18 +106,18 @@ class FilmControllerTest extends TestCase
 
         $this->assertDatabaseHas('films', [
             'id' => $film->id,
-            'judul' => 'Judul Setelah Update Inertia Sukses',
+            'judul' => 'Judul Setelah Update P2 Sukses',
         ]);
     }
 
     public function test_destroy_film_menghapus_data_dan_redirect(): void
     {
         $film = Film::create([
-            'judul' => 'Film Dihapus Inertia',
+            'judul' => 'Film Dihapus P2',
             'genre' => 'Horor',
             'durasi_menit' => 80,
             'usia_rating' => '17+',
-            'sinopsis' => 'Film ini untuk pengujian delete.',
+            'sinopsis' => 'Film ini untuk pengujian delete P2.',
             'status_tayang' => 'selesai',
         ]);
 

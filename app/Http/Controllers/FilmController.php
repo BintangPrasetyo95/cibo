@@ -10,7 +10,7 @@ use Inertia\Inertia;
 class FilmController extends Controller
 {
     /**
-     * Menampilkan daftar seluruh film dengan paginasi melalui React Inertia (Pertemuan 5 Slide 10 & 12).
+     * Menampilkan daftar seluruh film dengan paginasi melalui React Inertia (Pertemuan 6 Slide 29 & 30).
      */
     public function index()
     {
@@ -18,7 +18,6 @@ class FilmController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(9);
 
-        // Hanya satu baris berubah dari view() ke Inertia::render() (Pertemuan 5 Slide 12)
         return Inertia::render('film/index', [
             'judul' => 'Katalog Film CIBO',
             'films' => $films,
@@ -26,17 +25,17 @@ class FilmController extends Controller
     }
 
     /**
-     * Menampilkan formulir tambah film baru (tetap Blade pada pekan ini sesuai Slide 32).
+     * Menampilkan formulir tambah film baru melalui React Inertia (Pertemuan 6 Slide 29 & 30).
      */
     public function create()
     {
-        return view('film.create', [
+        return Inertia::render('film/create', [
             'judul' => 'Tambah Film Baru',
         ]);
     }
 
     /**
-     * Menyimpan data film baru (tetap sama dengan pertemuan 4).
+     * Menyimpan data film baru dengan validasi Form Request & POST-Redirect-GET.
      */
     public function store(StoreFilmRequest $request)
     {
@@ -48,7 +47,7 @@ class FilmController extends Controller
     }
 
     /**
-     * Menampilkan rincian film melalui React Inertia (Pertemuan 5 Slide 12 & 32).
+     * Menampilkan rincian film melalui React Inertia (Pertemuan 6 Slide 29 & 30).
      */
     public function show(Film $film)
     {
@@ -61,18 +60,18 @@ class FilmController extends Controller
     }
 
     /**
-     * Menampilkan formulir ubah film (tetap Blade pada pekan ini sesuai Slide 32).
+     * Menampilkan formulir ubah film melalui React Inertia (Pertemuan 6 Slide 29 & 30).
      */
     public function edit(Film $film)
     {
-        return view('film.edit', [
+        return Inertia::render('film/edit', [
             'judul' => 'Ubah Film: ' . $film->judul,
             'film' => $film,
         ]);
     }
 
     /**
-     * Menyimpan pembaruan data film (tetap sama dengan pertemuan 4).
+     * Menyimpan pembaruan data film.
      */
     public function update(UpdateFilmRequest $request, Film $film)
     {
@@ -84,7 +83,7 @@ class FilmController extends Controller
     }
 
     /**
-     * Menghapus film (tetap sama dengan pertemuan 4).
+     * Menghapus film dan mengalihkan dengan pesan flash.
      */
     public function destroy(Film $film)
     {

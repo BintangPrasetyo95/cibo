@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
+import PesanFlash from '@/components/PesanFlash';
 
 export default function AppLayout({ children, judul }) {
     return (
@@ -19,16 +20,21 @@ export default function AppLayout({ children, judul }) {
                         <Link href="/film" className="hover:text-emerald-400 transition-colors">
                             Katalog Film
                         </Link>
-                        {/* Halaman create masih Blade pada Pertemuan 5, gunakan tag <a> biasa sesuai Slide 21 & 32 */}
-                        <a href="/film/create" className="bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-colors">
+                        {/* Sekarang seluruh halaman sudah React (Pertemuan 6 Slide 30) */}
+                        <Link
+                            href="/film/create"
+                            className="bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-colors"
+                        >
                             + Tambah Film
-                        </a>
+                        </Link>
                     </nav>
                 </div>
             </header>
 
             {/* Konten Halaman */}
             <main className="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+                {/* Pesan Flash Dibagikan untuk Semua Halaman (Pertemuan 6 Slide 25 & 26) */}
+                <PesanFlash />
                 {children}
             </main>
 

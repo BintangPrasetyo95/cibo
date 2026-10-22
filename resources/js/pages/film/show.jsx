@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/AppLayout';
 
 export default function Show({ film, judul }) {
+    // Kaidah State: Konfirmasi sebelum menghapus (Pertemuan 6 Slide 13 & 30)
+    const [konfirmasi, setKonfirmasi] = useState(false);
+
     return (
         <AppLayout>
             <Head title={film.judul} />
@@ -13,7 +16,7 @@ export default function Show({ film, judul }) {
                         href="/film"
                         className="text-xs text-slate-500 hover:text-emerald-600 font-semibold inline-flex items-center"
                     >
-                        &larr; Kembali ke Katalog Film (React Link)
+                        &larr; Kembali ke Katalog Film
                     </Link>
                 </div>
 
@@ -88,13 +91,42 @@ export default function Show({ film, judul }) {
                     <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-sm">
                         <span className="text-xs text-slate-400">ID Film: #{film.id}</span>
                         <div className="flex items-center space-x-3">
-                            {/* Halaman edit masih Blade pekan ini, gunakan tag <a> biasa (Slide 32) */}
-                            <a
+                            <Link
                                 href={`/film/${film.id}/edit`}
                                 className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg text-xs transition"
                             >
-                                Ubah Film (Blade)
-                            </a>
+                                Ubah Film
+                            </Link>
+
+                            {/* Konfirmasi Hapus Menggunakan State (Pertemuan 6 Slide 13 & 30) */}
+                            {konfirmasi ? (
+                                <div className="flex items-center space-x-2 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-300">
+                                    <span className="text-rose-700 text-xs font-bold">Hapus permanen?</span>
+                                    <Link
+                                        href={`/film/${film.id}`}
+                                        method="delete"
+                                        as="button"
+                                        className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1 rounded text-xs transition"
+                                    >
+                                        Ya, Hapus
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={() => setKonfirmasi(false)}
+                                        className="text-slate-600 hover:text-slate-800 text-xs underline"
+                                    >
+                                        Batal
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setKonfirmasi(true)}
+                                    className="bg-rose-500 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded-lg text-xs transition"
+                                >
+                                    Hapus Film
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
