@@ -15,11 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Admin default
+        User::firstOrCreate(
+            ['email' => 'admin@cibo.test'],
+            [
+                'name' => 'Administrator CIBO',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Panggil seeder 3 modul film, jadwal, dan pemesanan
+        $this->call([
+            FilmSeeder::class,
         ]);
     }
 }
