@@ -9,12 +9,12 @@
 
 ## 1. Pembagian Tugas Anggota Kelompok
 
-| Nama Anggota | Peran & Tanggung Jawab | Berkas yang Dikerjakan |
+| Nama Anggota | Area Kerja & Peran | Berkas / Fitur yang Dikerjakan |
 | :--- | :--- | :--- |
-| **Bintang Prasetyo** | **Ketua & Backend Developer** | Menyiapkan `FilmController` (7 aksi penuh), Form Request `StoreFilmRequest` & `UpdateFilmRequest`, serta perutean RESTful. |
-| **Anggota 2** | **Database & Migrasi** | Menyiapkan skema migrasi PostgreSQL (`films`, `jadwals`, `pemesanans`), model Eloquent, relasi, serta Seeder & Factory data realistis. |
-| **Anggota 3** | **Frontend React & Komponen** | Merancang arsitektur komponen React 19 (`Kartu.jsx`, `BarisFilm.jsx`, `Kosong.jsx`, `PesanFlash.jsx`), tata letak `AppLayout.jsx`, serta halaman `index.jsx` & `show.jsx`. |
-| **Anggota 4** | **Formulir, State & Umpan Balik UI** | Menerapkan hook `useForm` pada `create.jsx` & `edit.jsx`, konfirmasi modal hapus dengan `useState`, penanganan tombol sibuk (`processing`), dan pesan flash session via `HandleInertiaRequests`. |
+| **Bintang Prastyo Kusumo Wicaksono** | **Autentikasi & Otorisasi** (Ketua Tim) | Mengimplementasikan sistem autentikasi multi-role (Admin & Kasir/Customer), middleware `PastikanPeran` di `bootstrap/app.php`, pembuatan `FilmPolicy`, pengujian otorisasi, dan props `can`. |
+| **Farel Raditya Surya Negara** | **Basis Data & Model** | Merancang ERD, menulis skema migrasi PostgreSQL (`films`, `jadwals`, `pemesanans`), tipe `decimal` mata uang, model Eloquent, relasi `hasMany`/`belongsTo`, serta Seeder & Factory data realistis. |
+| **Kadek Dwi Octo Lesa Candigo** | **Antarmuka & Komponen** | Membangun komponen UI interaktif menggunakan React 19 & Tailwind CSS (`Kartu.jsx`, `BarisFilm.jsx`, `Kosong.jsx`, `PesanFlash.jsx`), state denah kursi & konfirmasi hapus, serta penanganan 4 keadaan umpan balik UI. |
+| **Joshua Andrew Siahaan** | **Uji Kebergunaan & Dokumentasi** | Menyusun skenario pengujian, menyiapkan 5 calon pengguna nyata untuk sesi Usability Testing Pertemuan 13, serta menyusun dokumentasi teknis sistem dan panduan instalasi. |
 
 ---
 
@@ -29,6 +29,7 @@ Modul data pertama (`Film`) telah sepenuhnya dialihkan ke antarmuka React 19 tan
 * **Halaman Rincian (`resources/js/pages/film/show.jsx`):**
   - Menampilkan metadata film dan tabel jadwal tayang studio terkait.
   - Konfirmasi hapus interaktif menggunakan state peramban `useState`.
+  - Kontrol aksi ubah & hapus terikat hak akses dari props `can`.
 * **Halaman Tambah & Ubah (`create.jsx` & `edit.jsx`):**
   - Menggunakan hook `useForm` dari `@inertiajs/react`.
   - Tombol simpan dinonaktifkan (`disabled={processing}`) dan teks berubah menjadi "Menyimpan…" untuk mencegah *double submit*.

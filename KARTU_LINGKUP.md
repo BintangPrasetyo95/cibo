@@ -78,10 +78,10 @@ Mengikuti instruksi Pertemuan 1 Slide 12 (karena alokasi 2 SKS difokuskan pada p
 ---
 
 ## 7. Pembagian Peran Anggota Kelompok
-* **Anggota 1:** Perancang Basis Data, Migrasi PostgreSQL, Model Eloquent, dan Seeder Dummy Data.
-* **Anggota 2:** Pengembang Backend Controller (7 Aksi RESTful), Validasi Form Request, dan Alur Balik PRG.
-* **Anggota 3:** Pengembang Antarmuka Pengguna (React 19, Inertia 3, Tailwind CSS, Komponen Terisolasi, dan 4 Keadaan Umpan Balik).
-* **Anggota 4:** Pengembang Keamanan Sistem (Autentikasi, Middleware Peran, Gate & Policy) serta Koordinator Uji Kebergunaan.
+* **Farel Raditya Surya Negara:** Basis Data & Model (Merancang ERD, migrasi PostgreSQL, model Eloquent, relasi, seeder & factory data realistis).
+* **Kadek Dwi Octo Lesa Candigo:** Antarmuka & Komponen (Komponen React 19, Tailwind CSS, struktur komponen modular, formulir useForm, dan umpan balik 4 keadaan UI).
+* **Bintang Prastyo Kusumo Wicaksono:** Autentikasi & Otorisasi (Multi-role Admin & Kasir, middleware peran kustom di bootstrap/app.php, Gate & Policy, props can).
+* **Joshua Andrew Siahaan:** Uji Kebergunaan & Dokumentasi (Penyusunan skenario pengujian, persiapan Usability Testing Minggu 13 bersama 5 pengguna nyata, dokumentasi teknis sistem).
 
 ---
 
