@@ -11,7 +11,7 @@
 
 | Nama Anggota | Area Kerja | Fokus Presentasi & Demonstrasi Kode |
 | :--- | :--- | :--- |
-| **Bintang Prastyo Kusumo Wicaksono** | **Autentikasi & Otorisasi** (Ketua Tim) | Pembukaan, pengamanan rute, middleware `PastikanPeran`, Policy `FilmPolicy`, pengujian HTTP 403, dan props `can`. |
+| **Bintang Prastyo Kusumo Wicaksono** | **Autentikasi & Otorisasi** (Ketua Tim) | Pendaftaran akun (`/register`), proses masuk (`/login`), pemutaran sesi, middleware `PastikanPeran`, Policy `FilmPolicy`, pengujian HTTP 403, dan props `can`. |
 | **Farel Raditya Surya Negara** | **Basis Data & Model** | Perancangan ERD 3 modul PostgreSQL, migrasi presisi (`decimal`, foreign key), model Eloquent (`$fillable`, relasi), seeder/factory. |
 | **Kadek Dwi Octo Lesa Candigo** | **Antarmuka & Komponen** | Komponen React 19 & Tailwind CSS, hierarki komponen (`Kartu`, `BarisFilm`, `Kosong`), state denah kursi & konfirmasi hapus, 4 umpan balik UI. |
 | **Joshua Andrew Siahaan** | **Uji Kebergunaan & Dokumentasi** | Skenario Usability Testing Minggu 13 dengan 5 calon pengguna, metrik evaluasi kebergunaan, dan panduan replikasi instalasi sistem. |
@@ -24,7 +24,7 @@
 flowchart LR
     S1["Scene 1: Pembukaan & Masalah (Bintang)"] --> S2["Scene 2: Basis Data & Model (Farel)"]
     S2 --> S3["Scene 3: Antarmuka & Komponen (Kadek)"]
-    S3 --> S4["Scene 4: Autentikasi & Policy (Bintang)"]
+    S3 --> S4["Scene 4: Autentikasi, Login/Register & Policy (Bintang)"]
     S4 --> S5["Scene 5: Uji Kebergunaan (Joshua)"]
     S5 --> S6["Scene 6: Penutup (Semua)"]
 ```
@@ -41,9 +41,9 @@ flowchart LR
 > **Bintang:**  
 > "Halo semuanya! Selamat datang di presentasi tugas proyek mata kuliah Web Framework (INF625313) kelas kami. Saya **Bintang Prastyo Kusumo Wicaksono** selaku ketua tim, bersama rekan-rekan saya: **Farel Raditya Surya Negara**, **Kadek Dwi Octo Lesa Candigo**, dan **Joshua Andrew Siahaan**."  
 >  
-> "Aplikasi yang kami bangun bernama **CIBO (*Cinema Booking System*)**. Proyek ini lahir untuk menjawab permasalahan nyata pada operasional loket bioskop konvensional: antrean fisik yang padat menjelang jam tayang film favorit, staf loket yang kesulitan memvisualisasikan ketersediaan kursi secara *real-time* sehingga rawan terjadi pemilihan kursi ganda (*double booking*), serta ketiadaan laporan rekapitulasi okupansi yang otomatis dan terpercaya bagi pengelola."  
+> "Aplikasi yang kami bangun bernama **CIBO (*Cinema Booking System*)**. Proyek ini lahir untuk menjawab permasalahan nyata pada operasional loket bioskop: antrean fisik yang padat menjelang jam tayang, staf loket yang kesulitan memvisualisasikan ketersediaan kursi secara *real-time* sehingga rawan terjadi pemilihan kursi ganda (*double booking*), serta ketiadaan laporan rekapitulasi okupansi yang otomatis bagi pengelola bioskop."  
 >  
-> "Sesuai kontrak perkuliahan dan batasan yang telah digariskan, CIBO dibangun sebagai *monolit modern* menggunakan **Laravel 13, React 19, Inertia 3, Tailwind CSS, dan basis data PostgreSQL sungguhan**. Sekarang, mari kita bedah fondasi arsitektur data sistem ini yang akan dipaparkan oleh rekan saya, Farel."
+> "Sesuai kontrak perkuliahan dan batasan ketat yang digariskan dosen kita, CIBO dibangun sebagai *monolit modern* menggunakan **Laravel 13, React 19, Inertia 3, Tailwind CSS, dan basis data PostgreSQL sungguhan**. Sekarang, mari kita bedah fondasi arsitektur data sistem ini yang akan dipaparkan oleh rekan saya, Farel."
 
 ---
 
@@ -106,34 +106,46 @@ flowchart LR
 > 3. **Keadaan Berhasil:** Notifikasi pesan flash dari sesi server dibagikan secara global dan ditampilkan secara anggun oleh komponen `PesanFlash.jsx`.
 > 4. **Konfirmasi Hapus Interaktif:** Sebelum data dihapus, kami menaruh state `useState` konfirmasi di komponen baris terendah, sehingga pengguna tidak akan sengaja menghapus film tanpa sengaja."  
 >  
-> "Selanjutnya, aspek keamanan multi-role, middleware, dan kebijakan otorisasi sistem akan dijelaskan langsung oleh Bintang."
+> "Selanjutnya, aspek keamanan multi-role, formulir Login/Register, dan kebijakan otorisasi sistem akan dijelaskan langsung oleh Bintang."
 
 ---
 
-### SCENE 4: AUTENTIKASI, MIDDLEWARE PERAN, & KEBIJAKAN OTORISASI (06:00 - 08:00)
+### SCENE 4: AUTENTIKASI (LOGIN & REGISTER), MIDDLEWARE PERAN, & POLICY (06:00 - 08:00)
 **Pembicara:** Bintang Prastyo Kusumo Wicaksono  
 **Tampilan Layar (Visual):**
-- Perekaman layar di peramban mendemonstrasikan 2 sesi pengguna:
-  1. *Login sebagai Admin:* Tombol `+ Tambah Film`, tombol `Ubah`, dan `Hapus` terlihat aktif.
-  2. *Login sebagai Kasir:* Tombol `+ Tambah Film`, `Ubah`, dan `Hapus` otomatis tersembunyi; antarmuka hanya menampilkan rincian film dan pemesanan kursi.
-- **Uji Pembobolan Langsung:** Dalam posisi login sebagai Kasir, Bintang mengetikkan langsung URL rahasia admin `http://localhost:8000/film/create` di bilah alamat peramban &rarr; layar seketika menampilkan **HTTP 403 Forbidden: Akses Ditolak**.
-- Tampilan teks editor membuka `bootstrap/app.php`, `PastikanPeran.php`, `FilmPolicy.php`, dan `FilmController.php`.
+1. **Demonstrasi Pendaftaran Akun (`/register`):**
+   - Menampilkan formulir pendaftaran di peramban. Mengisi nama, email baru, memilih peran (*Kasir* atau *Admin*), dan kata sandi dengan konfirmasi.
+   - Menekan tombol *Daftar Sekarang* &rarr; tombol *disabled* dengan tulisan *"Mendaftar…"*, lalu otomatis masuk ke sistem dan muncul pesan *flash* selamat datang.
+2. **Demonstrasi Masuk Akun (`/login`) & Sesi:**
+   - Menunjukkan halaman login dengan penanganan galat jika kata sandi salah.
+   - Masuk sebagai `admin@cibo.test`: bilah navigasi atas menampilkan lencana merah **ADMIN**, tombol `+ Tambah Film`, tombol `Ubah`, dan `Hapus` terlihat aktif.
+   - Keluar (*logout*) dan masuk sebagai `kasir@cibo.test`: bilah navigasi menampilkan lencana hijau **KASIR**, tombol `+ Tambah Film` tersembunyi, dan kartu film hanya menampilkan mode baca.
+3. **Uji Pembobolan Langsung:**
+   - Dalam posisi login sebagai Kasir, Bintang mengetikkan langsung URL rahasia admin `http://localhost:8000/film/create` di bilah alamat peramban &rarr; layar seketika menampilkan **HTTP 403 Forbidden: Akses Ditolak**.
+4. **Sorotan Kode di VS Code:**
+   - Membuka `AuthController.php`, `bootstrap/app.php`, `PastikanPeran.php`, `FilmPolicy.php`, dan `FilmController.php`.
 
 **Naskah Dialog:**
 > **Bintang:**  
-> "Kembali bersama saya, Bintang. Saya bertanggung jawab atas pengamanan sistem pada area Autentikasi & Otorisasi."  
+> "Kembali bersama saya, Bintang. Saya memimpin implementasi Autentikasi dan Kebijakan Otorisasi."  
 >  
-> "Kaidah fundamental yang selalu ditekankan oleh dosen kita pada Pertemuan 7 adalah: **'Menyembunyikan menu bukan membatasi.'** Menyembunyikan tombol aksi di frontend React hanyalah persoalan kesopanan kenyamanan antarmuka (*user experience*), bukan pertahanan keamanan. Pertahanan yang sesungguhnya **wajib ditegakkan mutlak di sisi server**."  
+> *(Pindah sorotan layar ke demo Register dan Login)*  
+> "Pada Pertemuan 7, kita mempelajari bahwa sistem autentikasi tidak boleh ditulis asal-asalan. CIBO kini telah dilengkapi modul **Pendaftaran Akun (`/register`)** dan **Masuk Akun (`/login`)** yang terintegrasi penuh dengan Inertia dan React:
+> - Kata sandi disimpan teracak secara aman menggunakan algoritme *Bcrypt hash* yang sengaja dibuat mahal secara komputasi.
+> - Pada aksi login dan register, kami mengeksekusi **`$request->session()->regenerate()`** untuk memutar ulang *session ID*, melindungi sistem dari serangan pembajakan sesi (*Session Fixation*).
+> - Saat pengguna menekan tombol logout, sesi dimusnahkan dan token CSRF diperbarui kembali."  
 >  
 > *(Pindah sorotan layar ke demonstrasi uji coba galat 403)*  
-> "Dapat kita saksikan bersama di layar: ketika akun kasir mencoba menerobos dengan mengetikkan langsung URL `/film/create` di peramban, server seketika menolak dan mengembalikan pesan galat **HTTP 403 Forbidden**."  
+> "Kaidah emas yang selalu ditekankan oleh dosen kita adalah: **'Menyembunyikan menu bukan membatasi.'** Menyembunyikan tombol `Tambah Film` di frontend React saat akun kasir masuk hanyalah persoalan kesopanan kenyamanan antarmuka (*user experience*). Pertahanan sesungguhnya **wajib ditegakkan mutlak di sisi server**."  
+>  
+> "Mari kita buktikan bersama: saat akun kasir mencoba menerobos dengan mengetikkan langsung URL `/film/create` di bilah alamat peramban, server secara tegas menolak dan menghentikan permintaan dengan **HTTP 403 Forbidden**!"  
 >  
 > *(Pindah sorotan layar ke berkas kode)*  
-> "Bagaimana arsitektur ini kami bangun?
-> 1. Kami mendaftarkan alias middleware baru bernama `'peran'` menggunakan middleware kustom `PastikanPeran` di dalam berkas **`bootstrap/app.php`**, sesuai konvensi terbaru Laravel 13 (bukan di `Kernel.php` yang sudah usang).
-> 2. Kami mengisolasi seluruh aturan hak akses entitas ke dalam **`FilmPolicy`**. Di sinilah kita mendefinisikan bahwa aksi `create`, `update`, dan `delete` hanya diizinkan untuk pengguna berstatus `admin`.
-> 3. Pada Controller, kami memanggil **`Gate::authorize(...)`**, mematuhi standar resmi dokumentasi Laravel 13 dan meninggalkan method `$this->authorize()` lama.
-> 4. Server kemudian mengirimkan izin tersebut ke komponen React berupa props **`can`** (`can.tambah`, `can.ubah`, `can.hapus`). Sehingga logika keamanan tetap terpusat satu pintu di server, dan antarmuka hanya menggambar tombol sesuai hak yang sah."  
+> "Di balik layar, arsitektur keamanan ini berjalan harmonis:
+> 1. Pendaftaran alias middleware `'peran'` kami daftarkan langsung di **`bootstrap/app.php`**, sesuai kaidah resmi Laravel 13 (tanpa berkas `Kernel.php` yang sudah usang).
+> 2. Seluruh aturan otorisasi model diisolasi di **`FilmPolicy`**, di mana aksi `create`, `update`, dan `delete` hanya diberikan kepada pengguna berstatus `admin`.
+> 3. Pada Controller, kami memanggil **`Gate::authorize(...)`**, mematuhi standar Laravel 13 di mana kelas Controller sengaja kosong tanpa method `$this->authorize()`.
+> 4. Server kemudian mengirimkan hasil evaluasi Policy ke antarmuka React melalui props **`can`** (`can.tambah`, `can.ubah`, `can.hapus`). Logika keamanan tetap satu pintu di server, dan antarmuka hanya menggambar tombol sesuai izin yang sah."  
 >  
 > "Selanjutnya, persiapan pengujian bersama pengguna nyata dan dokumentasi teknis akan dipaparkan oleh Joshua."
 
@@ -145,7 +157,7 @@ flowchart LR
 - Tampilan dokumen `KARTU_LINGKUP.md` pada bagian calon pengguna uji kebergunaan dan tabel peran.
 - Tampilan dokumen `CATATAN.md` dan `README.md`.
 - Cuplikan skenario lembar tugas pengujian (*Task Scenario Sheet*) untuk pengguna.
-- Tampilan terminal menjalankan seluruh *automated test suite*: `php artisan test` &rarr; menampilkan **20 passed (101 assertions)** berwarna hijau sukses.
+- Tampilan terminal menjalankan seluruh *automated test suite*: `php artisan test` &rarr; menampilkan **27 passed (137 assertions)** berwarna hijau sukses.
 
 **Naskah Dialog:**
 > **Joshua:**  
@@ -154,16 +166,16 @@ flowchart LR
 > "Mata kuliah Web Framework mengajarkan bahwa aplikasi yang berjalan saja belum cukup jika belum terbukti dapat digunakan dengan nyaman oleh orang lain. Oleh karena itu, untuk mempersiapkan sesi **Uji Kebergunaan (*Usability Testing*) pada Pertemuan 13**, kami telah menetapkan 5 calon pengguna nyata di lingkungan kampus:
 > 1. **Rian Pratama** (Mahasiswa penonton bioskop rutin, untuk menguji alur visualisasi denah kursi).
 > 2. **Siti Nurhaliza** (Penonton umum, untuk menguji keterbacaan katalog dan jadwal film).
-> 3. **Ahmad Fauzan** (Staf kasir koperasi mahasiswa, untuk menguji kecepatan transaksi pemesanan loket).
-> 4. **Budi Santoso** (Pengurus organisasi kampus, untuk menguji navigasi alur kerja sistem).
-> 5. **Dina Lestari** (Mahasiswi umum, untuk menguji kejelasan pesan galat saat terjadi kesalahan input)."  
+> 3. **Ahmad Fauzan** (Staf kasir koperasi mahasiswa, untuk menguji kecepatan alur pendaftaran, login, dan transaksi loket).
+> 4. **Budi Santoso** (Pengurus organisasi kampus, untuk menguji alur navigasi dan pemahaman menu).
+> 5. **Dina Lestari** (Mahasiswi umum, untuk menguji kejelasan pesan galat saat terjadi kesalahan input formulir)."  
 >  
 > "Kami telah menyusun skenario tugas (*task scenarios*) berorientasi metrik: mengukur tingkat keberhasilan tugas (*task completion rate*), waktu pengerjaan transaksi, serta evaluasi kemudahan antarmuka melalui kuesioner System Usability Scale (SUS)."  
 >  
 > *(Pindah sorotan layar ke terminal pengujian otomatis)*  
-> "Dari sisi rekayasa perangkat lunak, keandalan sistem CIBO didukung penuh oleh pengujian otomatis. Seperti yang tampil di terminal, seluruh pengujian fitur mencakup alur MVC, relasi database PostgreSQL, hingga hak akses peran lolos 100% dengan **20 pengujian dan 101 assertions** yang hijau sempurna."  
+> "Dari sisi rekayasa perangkat lunak, keandalan sistem CIBO didukung penuh oleh pengujian otomatis. Seperti yang tampil di terminal, seluruh pengujian fitur mencakup alur MVC, alur autentikasi Login & Register, relasi database PostgreSQL, hingga hak akses peran lolos 100% dengan **27 pengujian dan 137 assertions** yang hijau sempurna."  
 >  
-> "Seluruh dokumentasi instalasi, pembagian tugas anggota di `CATATAN.md`, dan kartu lingkup telah tercatat rapi di repositori GitHub kami."
+> "Seluruh dokumentasi instalasi, pembagian tugas anggota di `CATATAN.md`, kartu lingkup, dan skrip ini telah tercatat rapi di repositori GitHub kami."
 
 ---
 
@@ -178,16 +190,16 @@ flowchart LR
 > "Sebagai penutup, perjalanan membangun CIBO dari Pertemuan 1 hingga Pertemuan 7 telah memberikan kami pemahaman mendalam tentang bagaimana kerangka kerja modern memisahkan tanggung jawab, mengamankan data, dan menghadirkan antarmuka reaktif tanpa mengorbankan integritas server."  
 >  
 > **Farel:**  
-> "Dari skema database yang rapi dan terukur..."  
+> "Dari skema database PostgreSQL yang terukur dan relasi yang kokoh..."  
 >  
 > **Kadek:**  
-> "Komponen antarmuka yang modular dan responsif..."  
+> "Komponen antarmuka React 19 yang modular, responsif, dan kaya umpan balik..."  
 >  
 > **Joshua:**  
-> "Hingga pengujian menyeluruh yang siap dievaluasi oleh pengguna nyata."  
+> "Serta pengujian menyeluruh yang siap diuji bersama pengguna nyata."  
 >  
 > **Bintang:**  
-> "Demikian presentasi dari kelompok kami. Terima kasih banyak atas perhatian Pak Mahendra Pratama dan rekan-rekan semua. CIBO: Pemesanan Cepat, Nonton Tepat!"  
+> "Demikian presentasi dari kelompok kami. Terima kasih banyak atas bimbingan Pak Mahendra Pratama dan perhatian rekan-rekan semua. CIBO: Pemesanan Cepat, Nonton Tepat!"  
 >  
 > **Semua Anggota:**  
 > *"Sampai jumpa di sesi pengujian kebergunaan. Terima kasih!"* *(Melambaikan tangan ke kamera)*

@@ -20,12 +20,12 @@ export default function AppLayout({ children }) {
                         </span>
                     </div>
 
-                    <div className="flex items-center space-x-6 text-sm font-medium">
+                    <div className="flex items-center space-x-4 md:space-x-6 text-sm font-medium">
                         <Link href="/film" className="hover:text-emerald-400 transition-colors">
                             Katalog Film
                         </Link>
 
-                        {/* Status Autentikasi Pengguna (Pertemuan 7 Slide 8) */}
+                        {/* Status Autentikasi Pengguna (Pertemuan 7 Slide 5, 8) */}
                         {auth?.user ? (
                             <div className="flex items-center space-x-3 border-l border-slate-700 pl-4">
                                 <span className="text-xs text-slate-300">
@@ -42,26 +42,25 @@ export default function AppLayout({ children }) {
                                     href="/logout"
                                     method="post"
                                     as="button"
-                                    className="text-xs text-slate-400 hover:text-white underline"
+                                    className="text-xs text-rose-400 hover:text-rose-300 underline font-medium"
                                 >
                                     Keluar
                                 </Link>
                             </div>
                         ) : (
-                            <div className="flex items-center space-x-2 border-l border-slate-700 pl-4 text-xs">
-                                <span className="text-slate-400">Simulasi Masuk:</span>
-                                <a
-                                    href="/login-sebagai/admin"
-                                    className="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded font-semibold transition"
+                            <div className="flex items-center space-x-3 border-l border-slate-700 pl-4 text-xs">
+                                <Link
+                                    href="/login"
+                                    className="text-slate-300 hover:text-white font-semibold transition"
                                 >
-                                    Admin
-                                </a>
-                                <a
-                                    href="/login-sebagai/kasir"
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded font-semibold transition"
+                                    Masuk
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    className="bg-emerald-500 hover:bg-emerald-600 text-slate-900 px-3 py-1.5 rounded-lg font-bold transition"
                                 >
-                                    Kasir
-                                </a>
+                                    Daftar Akun
+                                </Link>
                             </div>
                         )}
                     </div>
@@ -76,10 +75,10 @@ export default function AppLayout({ children }) {
 
             {/* Kaki Halaman */}
             <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-                <div className="max-w-6xl mx-auto px-4">
+                <div className="max-w-6xl mx-auto px-4 space-y-1">
                     <p>Proyek Web Framework (INF625313) &bull; CIBO Cinema Booking System &bull; Kurikulum 2025</p>
-                    <p className="mt-1 text-[11px] text-slate-400">
-                        Otorisasi: Menyembunyikan menu bukan membatasi &bull; Penegakan kewenangan mutlak di sisi server.
+                    <p className="text-[11px] text-slate-400">
+                        Autentikasi & Otorisasi: Kata sandi teracak aman, pemutaran sesi, dan penegakan kewenangan multi-role di sisi server.
                     </p>
                 </div>
             </footer>
