@@ -65,6 +65,7 @@ class FilmSeeder extends Seeder
             [
                 'name' => 'Budi Kasir Loket',
                 'password' => bcrypt('password'),
+                'peran' => 'kasir',
             ]
         );
 

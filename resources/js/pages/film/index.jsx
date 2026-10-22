@@ -4,44 +4,53 @@ import AppLayout from '@/layouts/AppLayout';
 import BarisFilm from '@/components/BarisFilm';
 import Kosong from '@/components/Kosong';
 
-export default function Index({ films, judul }) {
+export default function Index({ films, judul, can }) {
     return (
         <AppLayout>
             <Head title={judul || 'Katalog Film CIBO'} />
 
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-slate-900">{judul}</h1>
                     <p className="text-sm text-slate-500 mt-1">
-                        Daftar film aktif yang disajikan melalui React 19 dan Inertia 3 tanpa API terpisah.
+                        Daftar katalog film bioskop aktif &bull; Otorisasi dikontrol server melalui Policy.
                     </p>
                 </div>
 
-                <Link
-                    href="/film/create"
-                    className="inline-flex items-center bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition"
-                >
-                    + Tambah Film Baru
-                </Link>
+                {/* Tombol Tambah Hanya Ditampilkan Bila can.tambah bernilai true (Pertemuan 7 Slide 21 & 22) */}
+                {can?.tambah ? (
+                    <Link
+                        href="/film/create"
+                        className="inline-flex items-center bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition"
+                    >
+                        + Tambah Film Baru
+                    </Link>
+                ) : (
+                    <div className="text-xs text-slate-400 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg">
+                        Mode kasir: Hanya dapat melihat katalog
+                    </div>
+                )}
             </div>
 
-            {/* Grid Katalog Film Menggunakan Komponen BarisFilm (Pertemuan 6 Slide 7 & 8) */}
+            {/* Grid Katalog Film */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {films.data.map((f) => (
-                    <BarisFilm key={f.id} film={f} />
+                    <BarisFilm key={f.id} film={f} canTambah={can?.tambah} />
                 ))}
 
-                {/* Keadaan Data Kosong Menggunakan Komponen Kosong (Pertemuan 6 Slide 23 & 26) */}
+                {/* Keadaan Data Kosong */}
                 {films.data.length === 0 && (
                     <Kosong
                         pesan="Belum ada data film terdaftar di sistem CIBO."
                         aksi={
-                            <Link
-                                href="/film/create"
-                                className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition"
-                            >
-                                + Tambah Film Sekarang
-                            </Link>
+                            can?.tambah ? (
+                                <Link
+                                    href="/film/create"
+                                    className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition"
+                                >
+                                    + Tambah Film Sekarang
+                                </Link>
+                            ) : null
                         }
                     />
                 )}

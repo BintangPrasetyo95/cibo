@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/AppLayout';
 
-export default function Show({ film, judul }) {
-    // Kaidah State: Konfirmasi sebelum menghapus (Pertemuan 6 Slide 13 & 30)
+export default function Show({ film, can }) {
+    // Kaidah State: Konfirmasi sebelum menghapus (Pertemuan 6 Slide 13)
     const [konfirmasi, setKonfirmasi] = useState(false);
 
     return (
@@ -88,44 +88,57 @@ export default function Show({ film, judul }) {
                         )}
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-sm">
+                    {/* Kontrol Aksi: Hanya Dirender Bila Server Mengizinkan via Props can (Pertemuan 7 Slide 21 & 22) */}
+                    <div className="pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3 text-sm">
                         <span className="text-xs text-slate-400">ID Film: #{film.id}</span>
-                        <div className="flex items-center space-x-3">
-                            <Link
-                                href={`/film/${film.id}/edit`}
-                                className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg text-xs transition"
-                            >
-                                Ubah Film
-                            </Link>
 
-                            {/* Konfirmasi Hapus Menggunakan State (Pertemuan 6 Slide 13 & 30) */}
-                            {konfirmasi ? (
-                                <div className="flex items-center space-x-2 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-300">
-                                    <span className="text-rose-700 text-xs font-bold">Hapus permanen?</span>
-                                    <Link
-                                        href={`/film/${film.id}`}
-                                        method="delete"
-                                        as="button"
-                                        className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1 rounded text-xs transition"
-                                    >
-                                        Ya, Hapus
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        onClick={() => setKonfirmasi(false)}
-                                        className="text-slate-600 hover:text-slate-800 text-xs underline"
-                                    >
-                                        Batal
-                                    </button>
-                                </div>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setKonfirmasi(true)}
-                                    className="bg-rose-500 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded-lg text-xs transition"
+                        <div className="flex items-center space-x-3">
+                            {can?.ubah && (
+                                <Link
+                                    href={`/film/${film.id}/edit`}
+                                    className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg text-xs transition"
                                 >
-                                    Hapus Film
-                                </button>
+                                    Ubah Film
+                                </Link>
+                            )}
+
+                            {can?.hapus && (
+                                <div>
+                                    {konfirmasi ? (
+                                        <div className="flex items-center space-x-2 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-300">
+                                            <span className="text-rose-700 text-xs font-bold">Hapus permanen?</span>
+                                            <Link
+                                                href={`/film/${film.id}`}
+                                                method="delete"
+                                                as="button"
+                                                className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1 rounded text-xs transition"
+                                            >
+                                                Ya, Hapus
+                                            </Link>
+                                            <button
+                                                type="button"
+                                                onClick={() => setKonfirmasi(false)}
+                                                className="text-slate-600 hover:text-slate-800 text-xs underline"
+                                            >
+                                                Batal
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => setKonfirmasi(true)}
+                                            className="bg-rose-500 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded-lg text-xs transition"
+                                        >
+                                            Hapus Film
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
+                            {!can?.ubah && !can?.hapus && (
+                                <span className="text-xs text-slate-400 italic">
+                                    Akses edit & hapus hanya untuk peran admin
+                                </span>
                             )}
                         </div>
                     </div>

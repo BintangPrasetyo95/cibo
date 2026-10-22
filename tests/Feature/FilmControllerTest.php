@@ -3,11 +3,25 @@
 namespace Tests\Feature;
 
 use App\Models\Film;
+use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class FilmControllerTest extends TestCase
 {
+    private User $admin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->admin = User::firstOrCreate(
+            ['email' => 'admin@cibo.test'],
+            ['name' => 'Admin CIBO', 'password' => bcrypt('password'), 'peran' => 'admin']
+        );
+        $this->admin->update(['peran' => 'admin']);
+    }
+
     public function test_halaman_index_film_disajikan_lewat_inertia_react(): void
     {
         $response = $this->get(route('film.index'));
@@ -35,9 +49,9 @@ class FilmControllerTest extends TestCase
         );
     }
 
-    public function test_halaman_create_film_disajikan_lewat_inertia_react(): void
+    public function test_halaman_create_film_dapat_dibuka_oleh_admin(): void
     {
-        $response = $this->get(route('film.create'));
+        $response = $this->actingAs($this->admin)->get(route('film.create'));
 
         $response->assertStatus(200);
         $response->assertInertia(fn (Assert $page) => $page
@@ -46,11 +60,11 @@ class FilmControllerTest extends TestCase
         );
     }
 
-    public function test_halaman_edit_film_disajikan_lewat_inertia_react(): void
+    public function test_halaman_edit_film_dapat_dibuka_oleh_admin(): void
     {
         $film = Film::first();
 
-        $response = $this->get(route('film.edit', $film));
+        $response = $this->actingAs($this->admin)->get(route('film.edit', $film));
 
         $response->assertStatus(200);
         $response->assertInertia(fn (Assert $page) => $page
@@ -60,7 +74,7 @@ class FilmControllerTest extends TestCase
         );
     }
 
-    public function test_store_film_berhasil_menyimpan_data_dan_redirect_ke_index(): void
+    public function test_store_film_oleh_admin_berhasil_menyimpan_data_dan_redirect_ke_index(): void
     {
         $payload = [
             'judul' => 'Film Pengujian P2 React',
@@ -71,7 +85,7 @@ class FilmControllerTest extends TestCase
             'status_tayang' => 'segera',
         ];
 
-        $response = $this->post(route('film.store'), $payload);
+        $response = $this->actingAs($this->admin)->post(route('film.store'), $payload);
 
         $response->assertRedirect(route('film.index'));
         $response->assertSessionHas('sukses', 'Film baru berhasil ditambahkan.');
@@ -81,7 +95,7 @@ class FilmControllerTest extends TestCase
         ]);
     }
 
-    public function test_update_film_berhasil_menyimpan_perubahan_dan_redirect(): void
+    public function test_update_film_oleh_admin_berhasil_menyimpan_perubahan_dan_redirect(): void
     {
         $film = Film::create([
             'judul' => 'Judul Sebelum Update P2',
@@ -92,7 +106,7 @@ class FilmControllerTest extends TestCase
             'status_tayang' => 'segera',
         ]);
 
-        $response = $this->put(route('film.update', $film), [
+        $response = $this->actingAs($this->admin)->put(route('film.update', $film), [
             'judul' => 'Judul Setelah Update P2 Sukses',
             'genre' => 'Petualangan',
             'durasi_menit' => 110,
@@ -110,7 +124,7 @@ class FilmControllerTest extends TestCase
         ]);
     }
 
-    public function test_destroy_film_menghapus_data_dan_redirect(): void
+    public function test_destroy_film_oleh_admin_menghapus_data_dan_redirect(): void
     {
         $film = Film::create([
             'judul' => 'Film Dihapus P2',
@@ -121,7 +135,7 @@ class FilmControllerTest extends TestCase
             'status_tayang' => 'selesai',
         ]);
 
-        $response = $this->delete(route('film.destroy', $film));
+        $response = $this->actingAs($this->admin)->delete(route('film.destroy', $film));
 
         $response->assertRedirect(route('film.index'));
         $response->assertSessionHas('sukses', 'Film berhasil dihapus dari sistem.');

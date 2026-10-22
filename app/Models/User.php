@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'peran'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,5 +28,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Memeriksa apakah pengguna memiliki peran admin (Pertemuan 7 Slide 20).
+     */
+    public function isAdmin(): bool
+    {
+        return $this->peran === 'admin';
+    }
+
+    /**
+     * Memeriksa apakah pengguna memiliki peran kasir/petugas (Pertemuan 7 Slide 20).
+     */
+    public function isKasir(): bool
+    {
+        return $this->peran === 'kasir';
     }
 }

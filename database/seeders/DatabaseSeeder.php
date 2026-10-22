@@ -11,20 +11,31 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seed the application's database (Pertemuan 7 Slide 20).
      */
     public function run(): void
     {
-        // Admin default
-        User::firstOrCreate(
+        // 1. Akun Admin Utama
+        User::updateOrCreate(
             ['email' => 'admin@cibo.test'],
             [
                 'name' => 'Administrator CIBO',
                 'password' => bcrypt('password'),
+                'peran' => 'admin',
             ]
         );
 
-        // Panggil seeder 3 modul film, jadwal, dan pemesanan
+        // 2. Akun Petugas Loket / Kasir
+        User::updateOrCreate(
+            ['email' => 'kasir@cibo.test'],
+            [
+                'name' => 'Kasir Loket Bioskop',
+                'password' => bcrypt('password'),
+                'peran' => 'kasir',
+            ]
+        );
+
+        // 3. Panggil Seeder Film, Jadwal, dan Pemesanan
         $this->call([
             FilmSeeder::class,
         ]);

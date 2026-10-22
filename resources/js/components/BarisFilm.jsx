@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import Kartu from '@/components/Kartu';
 
-export default function BarisFilm({ film }) {
+export default function BarisFilm({ film, canTambah }) {
     // Kaidah State 4: Taruh state serendah mungkin (Pertemuan 6 Slide 13 & 15)
     const [konfirmasi, setKonfirmasi] = useState(false);
 
@@ -48,45 +48,51 @@ export default function BarisFilm({ film }) {
                         >
                             Rincian &rarr;
                         </Link>
-                        <Link
-                            href={`/film/${film.id}/edit`}
-                            className="text-amber-600 hover:underline font-semibold"
-                        >
-                            Ubah
-                        </Link>
-                    </div>
 
-                    {/* Konfirmasi Hapus Interaktif via State Lokal (Pertemuan 6 Slide 13 & 14) */}
-                    <div>
-                        {konfirmasi ? (
-                            <div className="flex items-center space-x-2 bg-rose-50 px-2 py-1 rounded border border-rose-200">
-                                <span className="text-rose-700 font-medium">Yakin?</span>
-                                <Link
-                                    href={`/film/${film.id}`}
-                                    method="delete"
-                                    as="button"
-                                    className="text-white bg-rose-600 hover:bg-rose-700 px-2 py-0.5 rounded font-bold transition"
-                                >
-                                    Ya
-                                </Link>
-                                <button
-                                    type="button"
-                                    onClick={() => setKonfirmasi(false)}
-                                    className="text-slate-500 hover:text-slate-700 underline"
-                                >
-                                    Batal
-                                </button>
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={() => setKonfirmasi(true)}
-                                className="text-rose-600 hover:text-rose-800 hover:underline font-semibold"
+                        {/* Tombol Ubah hanya muncul jika peran berhak (Pertemuan 7 Slide 21 & 22) */}
+                        {canTambah && (
+                            <Link
+                                href={`/film/${film.id}/edit`}
+                                className="text-amber-600 hover:underline font-semibold"
                             >
-                                Hapus
-                            </button>
+                                Ubah
+                            </Link>
                         )}
                     </div>
+
+                    {/* Konfirmasi Hapus hanya muncul jika peran berhak */}
+                    {canTambah && (
+                        <div>
+                            {konfirmasi ? (
+                                <div className="flex items-center space-x-2 bg-rose-50 px-2 py-1 rounded border border-rose-200">
+                                    <span className="text-rose-700 font-medium">Yakin?</span>
+                                    <Link
+                                        href={`/film/${film.id}`}
+                                        method="delete"
+                                        as="button"
+                                        className="text-white bg-rose-600 hover:bg-rose-700 px-2 py-0.5 rounded font-bold transition"
+                                    >
+                                        Ya
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={() => setKonfirmasi(false)}
+                                        className="text-slate-500 hover:text-slate-700 underline"
+                                    >
+                                        Batal
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setKonfirmasi(true)}
+                                    className="text-rose-600 hover:text-rose-800 hover:underline font-semibold"
+                                >
+                                    Hapus
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </Kartu>
