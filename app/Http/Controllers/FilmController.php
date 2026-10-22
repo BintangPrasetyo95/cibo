@@ -2,58 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreFilmRequest;
+use App\Http\Requests\UpdateFilmRequest;
+use App\Models\Film;
 
 class FilmController extends Controller
 {
     /**
-     * Data contoh sebelum terhubung ke basis data (sesuai modul Pertemuan 2).
-     *
-     * @var array<int, array<string, mixed>>
-     */
-    private array $dataContoh = [
-        [
-            'id' => 1,
-            'judul' => 'Pengabdi Setan 3',
-            'genre' => 'Horor',
-            'durasi_menit' => 118,
-            'usia_rating' => '17+',
-            'sinopsis' => 'Kelanjutan misteri teror ibu yang kembali menghantui keluarga Rini di rusun terbengkalai.',
-            'status_tayang' => 'Sedang Tayang',
-        ],
-        [
-            'id' => 2,
-            'judul' => 'Petualangan Sherina 3',
-            'genre' => 'Petualangan, Musikal',
-            'durasi_menit' => 125,
-            'usia_rating' => 'SU',
-            'sinopsis' => 'Perjalanan baru Sherina dan Sadam menjelajahi keanekaragaman hayati nusantara.',
-            'status_tayang' => 'Sedang Tayang',
-        ],
-        [
-            'id' => 3,
-            'judul' => 'The Architecture of Love',
-            'genre' => 'Drama, Romantis',
-            'durasi_menit' => 110,
-            'usia_rating' => '13+',
-            'sinopsis' => 'Kisah cinta yang tumbuh tak terduga di antara dua orang asing di kota New York.',
-            'status_tayang' => 'Segera Tayang',
-        ],
-    ];
-
-    /**
-     * Menampilkan daftar film (Tugas Studio 1).
+     * Menampilkan daftar seluruh film dengan paginasi dan eager loading (Pertemuan 4 Slide 9).
      */
     public function index()
     {
+        $films = Film::with('jadwals')
+            ->orderBy('id', 'desc')
+            ->paginate(9);
+
         return view('film.index', [
             'judul' => 'Katalog Film CIBO',
-            'films' => $this->dataContoh,
+            'films' => $films,
         ]);
     }
 
     /**
-     * Menampilkan formulir tambah film baru.
+     * Menampilkan formulir tambah film baru (Pertemuan 4 Slide 10).
      */
     public function create()
     {
@@ -63,60 +34,62 @@ class FilmController extends Controller
     }
 
     /**
-     * Menyimpan film baru.
+     * Menyimpan data film baru dengan validasi Form Request & POST-Redirect-GET (Pertemuan 4 Slide 11 & 18).
      */
-    public function store(Request $request)
+    public function store(StoreFilmRequest $request)
     {
-        return redirect()->route('film.index');
+        Film::create($request->validated());
+
+        return redirect()
+            ->route('film.index')
+            ->with('sukses', 'Film baru berhasil ditambahkan.');
     }
 
     /**
-     * Menampilkan rincian satu film.
+     * Menampilkan rincian film menggunakan Route Model Binding (Pertemuan 4 Slide 6 & 9).
      */
-    public function show(string $id)
+    public function show(Film $film)
     {
-        $film = collect($this->dataContoh)->firstWhere('id', (int) $id);
-
-        if (! $film) {
-            abort(404, 'Film tidak ditemukan.');
-        }
+        $film->load('jadwals');
 
         return view('film.show', [
-            'judul' => $film['judul'],
+            'judul' => $film->judul,
             'film' => $film,
         ]);
     }
 
     /**
-     * Menampilkan formulir ubah film.
+     * Menampilkan formulir ubah film (Pertemuan 4 Slide 8).
      */
-    public function edit(string $id)
+    public function edit(Film $film)
     {
-        $film = collect($this->dataContoh)->firstWhere('id', (int) $id);
-
-        if (! $film) {
-            abort(404, 'Film tidak ditemukan.');
-        }
-
         return view('film.edit', [
-            'judul' => 'Ubah Film: ' . $film['judul'],
+            'judul' => 'Ubah Film: ' . $film->judul,
             'film' => $film,
         ]);
     }
 
     /**
-     * Menyimpan perubahan film.
+     * Menyimpan pembaruan data film (Pertemuan 4 Slide 18).
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateFilmRequest $request, Film $film)
     {
-        return redirect()->route('film.index');
+        $film->update($request->validated());
+
+        return redirect()
+            ->route('film.index')
+            ->with('sukses', 'Perubahan data film berhasil disimpan.');
     }
 
     /**
-     * Menghapus film.
+     * Menghapus film dan mengalihkan dengan pesan flash (Pertemuan 4 Slide 18).
      */
-    public function destroy(string $id)
+    public function destroy(Film $film)
     {
-        return redirect()->route('film.index');
+        $film->delete();
+
+        return redirect()
+            ->route('film.index')
+            ->with('sukses', 'Film berhasil dihapus dari sistem.');
     }
 }

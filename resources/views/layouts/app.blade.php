@@ -11,7 +11,7 @@
     <header class="bg-slate-900 text-white shadow-md">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <span class="text-2xl font-black tracking-wider text-emerald-400">CIBO</span>
+                <a href="{{ route('film.index') }}" class="text-2xl font-black tracking-wider text-emerald-400">CIBO</a>
                 <span class="text-xs uppercase tracking-widest text-slate-400 font-semibold border-l border-slate-700 pl-3">Cinema Booking</span>
             </div>
             <nav class="flex items-center space-x-6 text-sm font-medium">
@@ -25,6 +25,16 @@
 
     <!-- Konten Utama -->
     <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+        <!-- Pesan Flash Session (Pertemuan 4 Slide 21) -->
+        @if (session('sukses'))
+            <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-center justify-between shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold">&check;</span>
+                    <span class="font-medium text-sm">{{ session('sukses') }}</span>
+                </div>
+            </div>
+        @endif
+
         @yield('isi')
     </main>
 
