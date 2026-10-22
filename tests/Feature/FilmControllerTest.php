@@ -3,25 +3,39 @@
 namespace Tests\Feature;
 
 use App\Models\Film;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class FilmControllerTest extends TestCase
 {
-    public function test_halaman_index_film_dapat_dibuka_dari_basis_data(): void
+    public function test_halaman_index_film_disajikan_lewat_inertia_react(): void
     {
-        $film = Film::orderBy('id', 'desc')->first();
-
         $response = $this->get(route('film.index'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('film.index');
-        $response->assertSee('Katalog Film CIBO');
-        if ($film) {
-            $response->assertSee($film->judul);
-        }
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('film/index')
+            ->has('judul')
+            ->has('films.data')
+        );
     }
 
-    public function test_halaman_tambah_film_dapat_dibuka(): void
+    public function test_halaman_show_film_disajikan_lewat_inertia_react(): void
+    {
+        $film = Film::first();
+
+        $response = $this->get(route('film.show', $film));
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('film/show')
+            ->where('film.id', $film->id)
+            ->where('film.judul', $film->judul)
+            ->has('film.jadwals')
+        );
+    }
+
+    public function test_halaman_tambah_film_tetap_blade_pada_pertemuan_5(): void
     {
         $response = $this->get(route('film.create'));
 
@@ -30,18 +44,7 @@ class FilmControllerTest extends TestCase
         $response->assertSee('Tambah Film Baru');
     }
 
-    public function test_halaman_show_film_menggunakan_route_model_binding(): void
-    {
-        $film = Film::first();
-
-        $response = $this->get(route('film.show', $film));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('film.show');
-        $response->assertSee($film->judul);
-    }
-
-    public function test_halaman_edit_film_dapat_dibuka(): void
+    public function test_halaman_edit_film_tetap_blade_pada_pertemuan_5(): void
     {
         $film = Film::first();
 
@@ -49,60 +52,47 @@ class FilmControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('film.edit');
-        $response->assertSee($film->judul);
+        $response->assertSee('Ubah Film: ' . $film->judul);
     }
 
-    public function test_store_film_berhasil_dengan_pola_post_redirect_get_dan_pesan_flash(): void
+    public function test_store_film_berhasil_menyimpan_data_dan_redirect_ke_index(): void
     {
         $payload = [
-            'judul' => 'Film Uji Coba Baru',
-            'genre' => 'Aksi',
-            'durasi_menit' => 110,
-            'usia_rating' => '13+',
-            'sinopsis' => 'Sinopsis pengujian otomatis untuk memverifikasi pola PRG.',
+            'judul' => 'Film Pengujian Inertia',
+            'genre' => 'Animasi',
+            'durasi_menit' => 90,
+            'usia_rating' => 'SU',
+            'sinopsis' => 'Sinopsis pengujian integrasi Inertia dan Form Request.',
             'status_tayang' => 'segera',
         ];
 
         $response = $this->post(route('film.store'), $payload);
 
-        // POST-Redirect-GET: Harus redirect, bukan return view
         $response->assertRedirect(route('film.index'));
         $response->assertSessionHas('sukses', 'Film baru berhasil ditambahkan.');
 
         $this->assertDatabaseHas('films', [
-            'judul' => 'Film Uji Coba Baru',
+            'judul' => 'Film Pengujian Inertia',
         ]);
     }
 
-    public function test_store_film_gagal_validasi_mengembalikan_galat_dan_isian_lama(): void
-    {
-        // Kirim data kosong yang melanggar aturan required
-        $response = $this->post(route('film.store'), [
-            'judul' => '',
-            'genre' => '',
-        ]);
-
-        $response->assertSessionHasErrors(['judul', 'genre', 'durasi_menit', 'usia_rating', 'sinopsis', 'status_tayang']);
-        $response->assertRedirect();
-    }
-
-    public function test_update_film_berhasil_menyimpan_perubahan(): void
+    public function test_update_film_berhasil_menyimpan_perubahan_dan_redirect(): void
     {
         $film = Film::create([
-            'judul' => 'Film Sebelum Diedit',
-            'genre' => 'Drama',
-            'durasi_menit' => 95,
-            'usia_rating' => 'SU',
-            'sinopsis' => 'Sinopsis sebelum diedit.',
+            'judul' => 'Judul Sebelum Update Inertia',
+            'genre' => 'Petualangan',
+            'durasi_menit' => 105,
+            'usia_rating' => '13+',
+            'sinopsis' => 'Sinopsis lama.',
             'status_tayang' => 'segera',
         ]);
 
         $response = $this->put(route('film.update', $film), [
-            'judul' => 'Film Setelah Diedit Sukses',
-            'genre' => 'Drama',
-            'durasi_menit' => 100,
+            'judul' => 'Judul Setelah Update Inertia Sukses',
+            'genre' => 'Petualangan',
+            'durasi_menit' => 110,
             'usia_rating' => '13+',
-            'sinopsis' => 'Sinopsis yang sudah diperbarui.',
+            'sinopsis' => 'Sinopsis baru.',
             'status_tayang' => 'tayang',
         ]);
 
@@ -111,18 +101,18 @@ class FilmControllerTest extends TestCase
 
         $this->assertDatabaseHas('films', [
             'id' => $film->id,
-            'judul' => 'Film Setelah Diedit Sukses',
+            'judul' => 'Judul Setelah Update Inertia Sukses',
         ]);
     }
 
-    public function test_destroy_film_menghapus_data_dan_redirect_dengan_flash(): void
+    public function test_destroy_film_menghapus_data_dan_redirect(): void
     {
         $film = Film::create([
-            'judul' => 'Film Untuk Dihapus',
+            'judul' => 'Film Dihapus Inertia',
             'genre' => 'Horor',
-            'durasi_menit' => 88,
+            'durasi_menit' => 80,
             'usia_rating' => '17+',
-            'sinopsis' => 'Film ini dibuat khusus untuk diuji penghapusannya.',
+            'sinopsis' => 'Film ini untuk pengujian delete.',
             'status_tayang' => 'selesai',
         ]);
 

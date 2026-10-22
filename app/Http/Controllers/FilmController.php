@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFilmRequest;
 use App\Http\Requests\UpdateFilmRequest;
 use App\Models\Film;
+use Inertia\Inertia;
 
 class FilmController extends Controller
 {
     /**
-     * Menampilkan daftar seluruh film dengan paginasi dan eager loading (Pertemuan 4 Slide 9).
+     * Menampilkan daftar seluruh film dengan paginasi melalui React Inertia (Pertemuan 5 Slide 10 & 12).
      */
     public function index()
     {
@@ -17,14 +18,15 @@ class FilmController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(9);
 
-        return view('film.index', [
+        // Hanya satu baris berubah dari view() ke Inertia::render() (Pertemuan 5 Slide 12)
+        return Inertia::render('film/index', [
             'judul' => 'Katalog Film CIBO',
             'films' => $films,
         ]);
     }
 
     /**
-     * Menampilkan formulir tambah film baru (Pertemuan 4 Slide 10).
+     * Menampilkan formulir tambah film baru (tetap Blade pada pekan ini sesuai Slide 32).
      */
     public function create()
     {
@@ -34,7 +36,7 @@ class FilmController extends Controller
     }
 
     /**
-     * Menyimpan data film baru dengan validasi Form Request & POST-Redirect-GET (Pertemuan 4 Slide 11 & 18).
+     * Menyimpan data film baru (tetap sama dengan pertemuan 4).
      */
     public function store(StoreFilmRequest $request)
     {
@@ -46,20 +48,20 @@ class FilmController extends Controller
     }
 
     /**
-     * Menampilkan rincian film menggunakan Route Model Binding (Pertemuan 4 Slide 6 & 9).
+     * Menampilkan rincian film melalui React Inertia (Pertemuan 5 Slide 12 & 32).
      */
     public function show(Film $film)
     {
         $film->load('jadwals');
 
-        return view('film.show', [
+        return Inertia::render('film/show', [
             'judul' => $film->judul,
             'film' => $film,
         ]);
     }
 
     /**
-     * Menampilkan formulir ubah film (Pertemuan 4 Slide 8).
+     * Menampilkan formulir ubah film (tetap Blade pada pekan ini sesuai Slide 32).
      */
     public function edit(Film $film)
     {
@@ -70,7 +72,7 @@ class FilmController extends Controller
     }
 
     /**
-     * Menyimpan pembaruan data film (Pertemuan 4 Slide 18).
+     * Menyimpan pembaruan data film (tetap sama dengan pertemuan 4).
      */
     public function update(UpdateFilmRequest $request, Film $film)
     {
@@ -82,7 +84,7 @@ class FilmController extends Controller
     }
 
     /**
-     * Menghapus film dan mengalihkan dengan pesan flash (Pertemuan 4 Slide 18).
+     * Menghapus film (tetap sama dengan pertemuan 4).
      */
     public function destroy(Film $film)
     {
