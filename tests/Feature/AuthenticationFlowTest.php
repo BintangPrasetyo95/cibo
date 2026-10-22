@@ -19,14 +19,16 @@ class AuthenticationFlowTest extends TestCase
 
     public function test_pengguna_dapat_masuk_dengan_kredensial_valid(): void
     {
+        $email = 'pengguna.' . uniqid() . '@cibo.test';
+
         $user = User::factory()->create([
-            'email' => 'pengguna.uji@cibo.test',
+            'email' => $email,
             'password' => Hash::make('password123'),
             'peran' => 'kasir',
         ]);
 
         $response = $this->post('/login', [
-            'email' => 'pengguna.uji@cibo.test',
+            'email' => $email,
             'password' => 'password123',
         ]);
 
@@ -36,13 +38,15 @@ class AuthenticationFlowTest extends TestCase
 
     public function test_masuk_gagal_jika_kata_sandi_salah(): void
     {
+        $email = 'salah.' . uniqid() . '@cibo.test';
+
         $user = User::factory()->create([
-            'email' => 'pengguna.salah@cibo.test',
+            'email' => $email,
             'password' => Hash::make('password123'),
         ]);
 
         $response = $this->from(route('login'))->post('/login', [
-            'email' => 'pengguna.salah@cibo.test',
+            'email' => $email,
             'password' => 'katasandisalah',
         ]);
 
@@ -60,9 +64,11 @@ class AuthenticationFlowTest extends TestCase
 
     public function test_pendaftaran_akun_baru_berhasil_dan_langsung_masuk_ke_sistem(): void
     {
+        $email = 'kasir.' . uniqid() . '@cibo.test';
+
         $response = $this->post('/register', [
             'name' => 'Calon Kasir Cibo',
-            'email' => 'kasir.baru@cibo.test',
+            'email' => $email,
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'peran' => 'kasir',
@@ -71,19 +77,21 @@ class AuthenticationFlowTest extends TestCase
         $response->assertRedirect(route('film.index'));
 
         $this->assertDatabaseHas('users', [
-            'email' => 'kasir.baru@cibo.test',
+            'email' => $email,
             'peran' => 'kasir',
         ]);
 
-        $user = User::where('email', 'kasir.baru@cibo.test')->first();
+        $user = User::where('email', $email)->first();
         $this->assertAuthenticatedAs($user);
     }
 
     public function test_pendaftaran_gagal_jika_konfirmasi_kata_sandi_tidak_cocok(): void
     {
+        $email = 'gagal.' . uniqid() . '@cibo.test';
+
         $response = $this->from(route('register'))->post('/register', [
             'name' => 'Calon Kasir Gagal',
-            'email' => 'kasir.gagal@cibo.test',
+            'email' => $email,
             'password' => 'password123',
             'password_confirmation' => 'berbeda456',
         ]);
